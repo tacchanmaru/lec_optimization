@@ -26,7 +26,8 @@ class OptimizationMethods:
         step_size = 1 / L
     
         history = []
-        for _ in range(max_iter):
+        convergence_iter = max_iter
+        for i in range(max_iter):
             f_val = self.f(w, lambda_)
             history.append(f_val)
     
@@ -34,9 +35,10 @@ class OptimizationMethods:
             w -= step_size * grad
     
             if np.linalg.norm(grad) < tol:
+                convergence_iter = i + 1
                 break
     
-        return w, history
+        return history, convergence_iter
     
     # ネステロフの加速勾配法
     def nesterov(self, lambda_, max_iter=MAX_ITER, tol=TOLERANCE):
@@ -48,7 +50,8 @@ class OptimizationMethods:
         beta = 0.9  # パラメータの調整
     
         history = []
-        for _ in range(max_iter):
+        convergence_iter = max_iter
+        for i in range(max_iter):
             grad = self.gradient(w, lambda_)
             y_next = w - step_size * grad
             w_next = y_next + beta * (y_next - y)
@@ -57,12 +60,13 @@ class OptimizationMethods:
             history.append(f_val)
     
             if np.linalg.norm(grad) < tol:
+                convergence_iter = i + 1
                 break
     
             y = y_next
             w = w_next
     
-        return w, history
+        return history, convergence_iter
     
     # ヘビーボール法
     def heavy_ball(self, lambda_, max_iter=MAX_ITER, tol=TOLERANCE):
@@ -74,7 +78,8 @@ class OptimizationMethods:
         beta = 0.9  # パラメータの調整
     
         history = []
-        for _ in range(max_iter):
+        convergence_iter = max_iter
+        for i in range(max_iter):
             grad = self.gradient(w, lambda_)
             w_next = w - step_size * grad + beta * (w - w_prev)
     
@@ -82,21 +87,51 @@ class OptimizationMethods:
             history.append(f_val)
     
             if np.linalg.norm(grad) < tol:
+                convergence_iter += 1
                 break
     
             w_prev = w
             w = w_next
     
-        return w, history
+        return history, convergence_iter
 
 
-# ランダムな A, b を生成し、異なる λ の値をテスト
-def main():
+def test_q1(A, b):
+    lambdas = [0, 1, 10]
+    results = {}
+
+    optimization_methods = OptimizationMethods(A, b)
+
+    for lambda_ in lambdas:
+        history, convergence_iter = optimization_methods.steepest_descent(lambda_)
+        results[lambda_] = history
+        print(f"convergence iter: {convergence_iter} (when lambda = {lambda_})")
+
+    # 結果をプロット
+    plt.figure(figsize=(12, 8))
+    for lambda_, history in results.items():
+        plt.plot(history, label=f'λ={lambda_}')
+    plt.xlabel('Iteration number k')
+    plt.ylabel('f(w_k)')
+    plt.yscale('linear')  # y軸のスケールをlinearに設定
+    plt.legend()
+    plt.title('Steepest Descent Method for different λ')
+    plt.savefig("results/test_q1_linear.png")
+    plt.close()
+
+    plt.figure(figsize=(12, 8))
+    for lambda_, history in results.items():
+        plt.plot(history, label=f'λ={lambda_}')
+    plt.xlabel('Iteration number k')
+    plt.ylabel('f(w_k)')
+    plt.yscale('log')  # y軸のスケールをlinearに設定
+    plt.legend()
+    plt.title('Steepest Descent Method for different λ')
+    plt.savefig("results/test_q1_log.png")
+    plt.close()   
+
+def test_q2(A, b):
     np.random.seed(0)
-    m, n = 50, 100
-    A = np.random.randn(m, n)
-    b = np.random.randn(m)
-    
     lambdas = [0, 1, 10]
     results_steepest_decent = {}
     results_nesterov = {}
@@ -106,16 +141,19 @@ def main():
     
     for lambda_ in lambdas:
         # 最急降下法
-        _, history_sd = optimization_methods.steepest_descent(lambda_)
+        history_sd, convergence_iter = optimization_methods.steepest_descent(lambda_)
         results_steepest_decent[lambda_] = history_sd
+        print(f"convergence iter: {convergence_iter} (when lambda = {lambda_}, using steepest decent method)")
         
         # ネステロフの加速勾配法
-        _, history_nesterov = optimization_methods.nesterov(lambda_)
+        history_nesterov, convergence_iter = optimization_methods.nesterov(lambda_)
         results_nesterov[lambda_] = history_nesterov
+        print(f"convergence iter: {convergence_iter} (when lambda = {lambda_}, using nesterov method)")
         
          # ヘビーボール法
-        _, history_heavy_ball = optimization_methods.heavy_ball(lambda_)
+        history_heavy_ball, convergence_iter = optimization_methods.heavy_ball(lambda_)
         results_heavy_ball[lambda_] = history_heavy_ball
+        print(f"convergence iter: {convergence_iter} (when lambda = {lambda_}, using heavy ball method)")
     
     # Plotting the results
     plt.figure(figsize=(12, 8))
@@ -144,6 +182,16 @@ def main():
     plt.title('Comparison of Steepest Descent, Nesterov, and Heavy-ball Methods')
     plt.savefig("results/test_q2_linear.png")
     plt.close()
+
+# ランダムな A, b を生成し、異なる λ の値をテスト
+def main():
+    np.random.seed(0)
+    m, n = 50, 100
+    A = np.random.randn(m, n)
+    b = np.random.randn(m)
+    
+    test_q1(A, b)
+    test_q2(A, b)
 
 if __name__ == "__main__":
     main()
