@@ -1,0 +1,28 @@
+[project]
+name = "lec-optimization"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Tatsuya Maseki", email = "92077818+tacchanmaru@users.noreply.github.com" }
+]
+dependencies = []
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lec_optimization"]
+
+[tool.rye.scripts]
+clean = "find . ( -type d -name '__pycache__' -o -type f -name '*.log' -o -type d -name '.ruff_cache' -o -type d -name '.venv' -o -type d -name 'logs' ) -exec rm -r {} ;"
+execute = "rye run python3 script/__execute__.py"
