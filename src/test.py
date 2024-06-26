@@ -1,10 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-TOLERANCE = 1e-6 # 収束条件の許容範囲
-MAX_ITER = 1000
-
-
 class OptimizationMethods:
     def __init__(self, A, b):
         self.A = A
@@ -19,10 +15,11 @@ class OptimizationMethods:
         return np.linalg.norm(self.b - self.A @ w)**2 + lambda_ * np.linalg.norm(w)**2
     
     # 最急降下法
-    def steepest_descent(self, lambda_, max_iter=MAX_ITER, tol=TOLERANCE):
+    def steepest_descent(self, lambda_, max_iter=1000, tol=1e-6):
         _, n = self.A.shape
         w = np.zeros(n)
         L = 2 * (np.linalg.norm(self.A, ord=2)**2 + lambda_)
+        step_size = 1 / L
         step_size = 1 / L
     
         history = []
@@ -41,7 +38,7 @@ class OptimizationMethods:
         return history, convergence_iter
     
     # ネステロフの加速勾配法
-    def nesterov(self, lambda_, max_iter=MAX_ITER, tol=TOLERANCE):
+    def nesterov(self, lambda_, max_iter=1000, tol=1e-6):
         _, n = self.A.shape
         w = np.zeros(n)
         y = np.zeros(n)
@@ -69,7 +66,7 @@ class OptimizationMethods:
         return history, convergence_iter
     
     # ヘビーボール法
-    def heavy_ball(self, lambda_, max_iter=MAX_ITER, tol=TOLERANCE):
+    def heavy_ball(self, lambda_, max_iter=1000, tol=1e-6):
         _, n = self.A.shape
         w = np.zeros(n)
         w_prev = np.zeros(n)
@@ -87,7 +84,7 @@ class OptimizationMethods:
             history.append(f_val)
     
             if np.linalg.norm(grad) < tol:
-                convergence_iter += 1
+                convergence_iter = i + 1
                 break
     
             w_prev = w
@@ -110,23 +107,23 @@ def test_q1(A, b):
     # 結果をプロット
     plt.figure(figsize=(12, 8))
     for lambda_, history in results.items():
-        plt.plot(history, label=f'λ={lambda_}')
-    plt.xlabel('Iteration number k')
-    plt.ylabel('f(w_k)')
-    plt.yscale('linear')  # y軸のスケールをlinearに設定
+        plt.plot(history, label=f"λ={lambda_}")
+    plt.xlabel("Iteration number k")
+    plt.ylabel("f(w_k)")
+    plt.yscale("linear")  # y軸のスケールをlinearに設定
     plt.legend()
-    plt.title('Steepest Descent Method for different λ')
+    plt.title("Steepest Descent Method for different λ")
     plt.savefig("results/test_q1_linear.png")
     plt.close()
 
     plt.figure(figsize=(12, 8))
     for lambda_, history in results.items():
-        plt.plot(history, label=f'λ={lambda_}')
-    plt.xlabel('Iteration number k')
-    plt.ylabel('f(w_k)')
-    plt.yscale('log')  # y軸のスケールをlinearに設定
+        plt.plot(history, label=f"λ={lambda_}")
+    plt.xlabel("Iteration number k")
+    plt.ylabel("f(w_k)")
+    plt.yscale("log")  # y軸のスケールをlinearに設定
     plt.legend()
-    plt.title('Steepest Descent Method for different λ')
+    plt.title("Steepest Descent Method for different λ")
     plt.savefig("results/test_q1_log.png")
     plt.close()   
 
@@ -158,28 +155,28 @@ def test_q2(A, b):
     # Plotting the results
     plt.figure(figsize=(12, 8))
     for lambda_ in lambdas:
-        plt.plot(results_steepest_decent[lambda_], label=f'Steepest Descent λ={lambda_}')
-        plt.plot(results_nesterov[lambda_], label=f'Nesterov λ={lambda_}', linestyle='dashed')
-        plt.plot(results_heavy_ball[lambda_], label=f'Heavy-ball λ={lambda_}', linestyle='dotted')
-    plt.xlabel('Iteration number k')
-    plt.ylabel('f(w_k)')
+        plt.plot(results_steepest_decent[lambda_], label=f"Steepest Descent λ={lambda_}")
+        plt.plot(results_nesterov[lambda_], label=f"Nesterov λ={lambda_}", linestyle="dashed")
+        plt.plot(results_heavy_ball[lambda_], label=f"Heavy-ball λ={lambda_}", linestyle="dotted")
+    plt.xlabel("Iteration number k")
+    plt.ylabel("f(w_k)")
     plt.yscale("log")
     plt.legend()
-    plt.title('Comparison of Steepest Descent, Nesterov, and Heavy-ball Methods')
+    plt.title("Comparison of Steepest Descent, Nesterov, and Heavy-ball Methods")
     plt.savefig("results/test_q2_log.png")
     plt.close()
 
     # Plotting the results
     plt.figure(figsize=(12, 8))
     for lambda_ in lambdas:
-        plt.plot(results_steepest_decent[lambda_], label=f'Steepest Descent λ={lambda_}')
-        plt.plot(results_nesterov[lambda_], label=f'Nesterov λ={lambda_}', linestyle='dashed')
-        plt.plot(results_heavy_ball[lambda_], label=f'Heavy-ball λ={lambda_}', linestyle='dotted')
-    plt.xlabel('Iteration number k')
-    plt.ylabel('f(w_k)')
+        plt.plot(results_steepest_decent[lambda_], label=f"Steepest Descent λ={lambda_}")
+        plt.plot(results_nesterov[lambda_], label=f"Nesterov λ={lambda_}", linestyle="dashed")
+        plt.plot(results_heavy_ball[lambda_], label=f"Heavy-ball λ={lambda_}", linestyle="dotted")
+    plt.xlabel("Iteration number k")
+    plt.ylabel("f(w_k)")
     plt.yscale("linear")
     plt.legend()
-    plt.title('Comparison of Steepest Descent, Nesterov, and Heavy-ball Methods')
+    plt.title("Comparison of Steepest Descent, Nesterov, and Heavy-ball Methods")
     plt.savefig("results/test_q2_linear.png")
     plt.close()
 
